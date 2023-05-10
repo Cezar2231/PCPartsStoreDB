@@ -1,4 +1,4 @@
---ðàçðàáîòâàíå íà èíôîðìàöèîííà ñèñòåìà çà ñúñòàâÿíå íà êîìïþòúðíè êîíôèãóðàöèè
+--Ñ€Ð°Ð·Ñ€Ð°Ð±Ð¾Ñ‚Ð²Ð°Ð½Ðµ Ð½Ð° Ð¸Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ð¾Ð½Ð½Ð° ÑÐ¸ÑÑ‚ÐµÐ¼Ð° Ð·Ð° ÑÑŠÑÑ‚Ð°Ð²ÑÐ½Ðµ Ð½Ð° ÐºÐ¾Ð¼Ð¿ÑŽÑ‚ÑŠÑ€Ð½Ð¸ ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸
 CREATE DATABASE PCPartsStore;
 USE PCPartsStore;
 
@@ -9,7 +9,6 @@ ProcNumber NVARCHAR(30) NOT NULL,
 ProcPrice FLOAT NOT NULL,
 ProcInStock INT NOT NULL
 );
-
 
 INSERT INTO Processor(ProcName, ProcNumber, ProcPrice, ProcInStock) VALUES ('AMD Ryzen 7 5800X',9898221, 850, 24);
 INSERT INTO Processor(ProcName, ProcNumber, ProcPrice, ProcInStock) VALUES ('Intel Core i5-7002', 2123422, 400, 50);
@@ -79,9 +78,9 @@ FOREIGN KEY (CMBID) REFERENCES MotherBoard(MBID),
 ConfigPrice FLOAT NOT NULL
 );
 
-INSERT INTO Config(ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID,ConfigPrice) VALUES ('Êîìïþòúð Lenovo Legion T5 Tower',1,1,1,1,1,3349);
-INSERT INTO Config(ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID,ConfigPrice) VALUES ('Êîìïþòúð Lenovo IdeaCentre 5 Tower',2,2,2,2,2,1890);
-INSERT INTO Config(ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID,ConfigPrice) VALUES ('Êîìïþòúð Lenovo Legion T5 Tower',3,3,3,3,3,2100);
+INSERT INTO Config(ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID,ConfigPrice) VALUES ('ÐšÐ¾Ð¼Ð¿ÑŽÑ‚ÑŠÑ€ Lenovo Legion T5 Tower',1,1,1,1,1,3349);
+INSERT INTO Config(ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID,ConfigPrice) VALUES ('ÐšÐ¾Ð¼Ð¿ÑŽÑ‚ÑŠÑ€ Lenovo IdeaCentre 5 Tower',2,2,2,2,2,1890);
+INSERT INTO Config(ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID,ConfigPrice) VALUES ('ÐšÐ¾Ð¼Ð¿ÑŽÑ‚ÑŠÑ€ Lenovo Legion T5 Tower',3,3,3,3,3,2100);
 
 CREATE TABLE Sales(
 SaleID INT IDENTITY PRIMARY KEY NOT NULL,
@@ -97,56 +96,58 @@ INSERT INTO Sales(ConfigID,SDate) VALUES (2,'2022-9-16')
 INSERT INTO Sales(ConfigID,SDate) VALUES (3,'2022-8-7')
 
 
---#1
 SELECT AVG(ConfigPrice) AS AvePrice
 FROM Config;
 
---#2
+
 SELECT * FROM Config
 ORDER BY ConfigPrice;
 
---#3 ïî íîìåð íà ÷àñò
+
 SELECT ConfigName, CCPUID, CGPUID, CRAMID, CSSDID, CMBID, ConfigPrice,GPUNumber
 FROM Config INNER JOIN GPU ON Config.CGPUID= GPU.GPUID
 WHERE GPUNumber=9929123
 
---#4 ïðîöåñîð õ
+
 SELECT * FROM Config INNER JOIN  Processor ON  Config.CCPUID = Processor.ProcID  
 WHERE ProcName = 'Intel Core i7-11000K' OR ProcName= 'AMD Ryzen 7 5800X' OR ProcName='Intel Core i5-7002'
 
 
- --#5 ñðåäíàòà öåíà çà âñÿêà ãðóïà
- SELECT AVG(ProcPrice) AS ProcPrice,AVG(GPUPrice) AS GPUPrice,
- AVG(RAMPrice) AS RAMPrice, AVG(SSDPrice) AS SSDPrice,
- AVG(MBPrice) AS MBPrice
- FROM Processor,GPU, RAM, SSD, MotherBoard
+SELECT AVG(ProcPrice) AS AveProcPrice,AVG(GPUPrice) AS AveGPUPrice,
+AVG(RAMPrice) AS AveRAMPrice, AVG(SSDPrice) AS AveSSDPrice,
+AVG(MBPrice) AS AveMBPrice
+FROM Processor,GPU, RAM, SSD, MotherBoard
 
 
---#6 ääñ
 SELECT * FROM Config
 UPDATE Config
 SET ConfigPrice=ConfigPrice-ConfigPrice*20/100
 
---#7
+
 SELECT * FROM GPU
 WHERE GPUPRICE>500 AND GPUPRICE<1000
 
---#8
+
+SELECT TOP(2) GPUInStock FROM GPU
+
+
 SELECT * FROM Processor
 UPDATE Processor 
 SET ProcName ='Intel ICore 13-3992' WHERE ProcID=1;
 
-DELETE FROM Processor WHERE ProcID=1;
 
---#9
+DELETE FROM Processor
+WHERE ProcID=1;
+
+
 SELECT * FROM Sales
 WHERE SDate BETWEEN '2022-10-27'  AND '2022-11-27'
 
---#10 êîèòî íÿìàò ÷àñò õ
-SELECT * FROM Config INNER JOIN GPU ON Config.CGPUID= GPU.GPUID
+
+SELECT * FROM Config INNER JOIN GPU ON Config.CGPUID = GPU.GPUID
 WHERE GPUName NOT LIKE 'NVIDIA RTX 3070 8GB';
 
---#11
+
 CREATE PROCEDURE UpdateConfig 
 @UpdateID INT,
 @Name NVARCHAR,
@@ -166,9 +167,16 @@ EXEC UpdateConfig 1,'Comp',2,1,2,1,2,2000
 SELECT * FROM Config
 
 
---#12
-
 CREATE PROCEDURE ShowConfig
 AS SELECT * FROM Config;
 
 EXEC ShowConfig
+
+
+CREATE VIEW V_ShowAvePrice AS
+SELECT AVG(ProcPrice) AS AveProcPrice,AVG(GPUPrice) AS AveGPUPrice,
+ AVG(RAMPrice) AS AveRAMPrice, AVG(SSDPrice) AS AveSSDPrice,
+ AVG(MBPrice) AS AveMBPrice
+ FROM Processor,GPU, RAM, SSD, MotherBoard
+
+ SELECT * FROM V_ShowAvePrice
